@@ -4,7 +4,6 @@ import com.example.springfsd.app.config.JwtUtil;
 import com.example.springfsd.app.models.User;
 import com.example.springfsd.app.services.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,11 +15,16 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
 //    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
+    public UserController(UserService userService, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
 
     @PostMapping("/users")
     public ResponseEntity<String> createUser(@Valid @RequestBody User user){
@@ -32,8 +36,6 @@ public class UserController {
             return ResponseEntity.status(400).body("Error: " + e.getMessage());
         }
     }
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody User loginUser) {
