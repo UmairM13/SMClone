@@ -1,8 +1,10 @@
 package com.example.springfsd.app.services;
 
+import com.example.springfsd.app.dto.UserRequestDTO;
 import com.example.springfsd.app.exception.UserAlreadyExistsException;
 import com.example.springfsd.app.models.User;
 import com.example.springfsd.app.repository.UserRepository;
+import com.example.springfsd.app.dto.UserResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,15 +36,17 @@ public class UserService {
         return savedUser.getId();
     }
 
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+    public UserResponseDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername());
     }
 
-    public String getToken(Long userId) {
-        return userRepository.findById(userId)
-                .map(User::getSessionToken)
-                .orElse(null);
-    }
+//    public String getToken(Long userId) {
+//        return userRepository.findById(userId)
+//                .map(User::getSessionToken)
+//                .orElse(null);
+//    }
 
     @Transactional
     public void setToken(Long userId, String token) {
@@ -78,7 +82,4 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
     }
 
-    // DTO records inside UserService
-    public record UserRequestDTO(String firstName, String lastName, String username, String password) {}
-    public record UserResponseDTO(Long id, String username, String token) {}
 }

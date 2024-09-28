@@ -1,6 +1,8 @@
 package com.example.springfsd.app.controller;
 
 import com.example.springfsd.app.config.JwtUtil;
+import com.example.springfsd.app.dto.UserRequestDTO;
+import com.example.springfsd.app.dto.UserResponseDTO;
 import com.example.springfsd.app.models.User;
 import com.example.springfsd.app.services.UserService;
 import jakarta.validation.Valid;
@@ -20,7 +22,7 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/users")
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserService.UserRequestDTO userRequestDTO) {
+    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         try {
             Long userId = userService.createUser(userRequestDTO);
             return ResponseEntity.status(201).body("User created successfully with id: " + userId);
@@ -30,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserService.UserRequestDTO loginRequestDTO) {
+    public ResponseEntity<?> login(@Valid @RequestBody UserRequestDTO loginRequestDTO) {
         User user = userService.getUserByUsername(loginRequestDTO.username());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
@@ -43,7 +45,7 @@ public class UserController {
         String token = jwtUtil.generateToken(user.getUsername());
         userService.setToken(user.getId(), token);
 
-        UserService.UserResponseDTO userResponseDTO = new UserService.UserResponseDTO(user.getId(), user.getUsername(), token);
+        UserResponseDTO userResponseDTO = new UserResponseDTO(user.getId(), token);
         return ResponseEntity.ok().body(userResponseDTO);
     }
 
@@ -59,5 +61,15 @@ public class UserController {
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long userId) {
+        try{
+            UserResponseDTO userResponseDTO = userService.getUserById(userId);
+            return ResponseEntity.ok(userResponseDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }
