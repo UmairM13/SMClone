@@ -4,10 +4,9 @@ import com.example.springfsd.app.services.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -16,21 +15,18 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private String secretKey = "EZ+rla4QjFhta0piP03jfU4YmRqYF1PQBQCp4XONddY=";
 
-    public JwtUtil(UserService userService) {
+    private final UserService userService;
+
+    public JwtUtil(@Lazy UserService userService) {
         this.userService = userService;
     }
 
-    @PostConstruct
-    public void postConstruct() {
-        LOGGER.info("JWT Secret Key initialized."); // Avoid logging the key directly in production
-    }
 
     // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtil.class);
-    private final UserService userService;
+
 
     public String generateToken(String username) {
         String token = Jwts.builder()
