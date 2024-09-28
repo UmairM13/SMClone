@@ -3,6 +3,7 @@ package com.example.springfsd.app.services;
 import com.example.springfsd.app.dto.PostRequestDTO;
 import com.example.springfsd.app.models.Post;
 import com.example.springfsd.app.repository.PostRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +23,17 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
         return savedPost.getId();
+    }
+
+    @Transactional
+    public void deletePost(Long postId, Long authorId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if(!post.getAuthorId().equals(authorId)){
+            throw new RuntimeException("You are not allowed to delete this post");
+        }
+
+        postRepository.delete(post);
     }
 }

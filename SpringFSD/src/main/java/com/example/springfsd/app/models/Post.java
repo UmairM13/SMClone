@@ -12,13 +12,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "text", nullable = false)
     private String text;
 
     @Column(name = "date_published", nullable = false)
