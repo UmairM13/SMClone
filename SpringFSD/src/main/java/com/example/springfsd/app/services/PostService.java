@@ -17,7 +17,7 @@ public class PostService {
 
     public Long createPost(PostRequestDTO postRequestDTO, Long authorId) {
         Post post = new Post();
-        post.setText(postRequestDTO.getText());
+        post.setText(postRequestDTO.text());
         post.setDatePublished(Timestamp.valueOf(LocalDateTime.now()).toLocalDateTime());
         post.setAuthorId(authorId); // Set the author ID
 
