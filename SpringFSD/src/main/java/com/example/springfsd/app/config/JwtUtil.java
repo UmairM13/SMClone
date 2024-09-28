@@ -1,5 +1,6 @@
 package com.example.springfsd.app.config;
 
+import com.example.springfsd.app.services.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,6 +19,10 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    public JwtUtil(UserService userService) {
+        this.userService = userService;
+    }
+
     @PostConstruct
     public void postConstruct() {
         LOGGER.info("JWT Secret Key initialized."); // Avoid logging the key directly in production
@@ -25,6 +30,7 @@ public class JwtUtil {
 
     // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtil.class);
+    private final UserService userService;
 
     public String generateToken(String username) {
         String token = Jwts.builder()
@@ -70,4 +76,12 @@ public class JwtUtil {
         final String currentUsername = extractUsername(token);
         return (username.equals(currentUsername) && !isTokenExpired(token));
     }
+
+    public Long extractUserId(String token) {
+        String username = extractUsername(token);
+        // Assuming you have a way to convert username to user ID, e.g., querying the User service
+        // You may need to adjust this to match your UserService implementation
+        return userService.getUserIdByUsername(username); // This requires a UserService method
+    }
+
 }
