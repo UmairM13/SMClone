@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "posts")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
@@ -21,13 +22,9 @@ public class Post {
     private String text;
 
     @Column(name = "date_published", nullable = false)
-    private LocalDateTime datePublished = LocalDateTime.now();
+    private LocalDateTime datePublished;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @Column(name = "author_id", nullable = false)
+    private Long authorId;
 
-    public Long getAuthorId() {
-        return author.getId();
-    }
 }

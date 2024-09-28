@@ -1,29 +1,24 @@
 package com.example.springfsd.app.services;
 
+import com.example.springfsd.app.dto.PostRequestDTO;
 import com.example.springfsd.app.models.Post;
-import com.example.springfsd.app.models.User;
 import com.example.springfsd.app.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @Service
+@RequiredArgsConstructor
 public class PostService {
+    private final PostRepository postRepository;
 
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private UserService userService;
-
-    public Long addNewPost(String text, Long authorId) throws Exception{
-        User author = userService.getUserById(authorId);
-        if(author == null){
-            throw new Exception("Author not found");
-        }
-
+    public Long createPost(PostRequestDTO postRequestDTO, Long authorId) {
         Post post = new Post();
-        post.setText(text);
-        post.setAuthor(author);
+        post.setText(postRequestDTO.getText());
+        post.setDatePublished(Timestamp.valueOf(LocalDateTime.now()).toLocalDateTime());
+        post.setAuthorId(authorId); // Set the author ID
 
         Post savedPost = postRepository.save(post);
         return savedPost.getId();
