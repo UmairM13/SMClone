@@ -2,6 +2,7 @@ package com.example.springfsd.app.controller;
 
 import com.example.springfsd.app.config.JwtUtil;
 import com.example.springfsd.app.dto.PostRequestDTO;
+import com.example.springfsd.app.dto.PostResponseDTO;
 import com.example.springfsd.app.services.PostService;
 import com.example.springfsd.app.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -71,5 +72,15 @@ public class PostController {
         String token = authorizationHeader.substring(7);
         String updatedText = postService.updatePost(postId, token, postRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(updatedText);
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponseDTO> getPost(@PathVariable Long postId){
+        try{
+            PostResponseDTO postResponseDTO = postService.getPost(postId);
+            return ResponseEntity.ok(postResponseDTO);
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }

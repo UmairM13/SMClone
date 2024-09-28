@@ -1,6 +1,7 @@
 package com.example.springfsd.app.services;
 
 import com.example.springfsd.app.dto.PostRequestDTO;
+import com.example.springfsd.app.dto.PostResponseDTO;
 import com.example.springfsd.app.exception.PostNotFoundException;
 import com.example.springfsd.app.models.Post;
 import com.example.springfsd.app.repository.PostRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +56,15 @@ public class PostService {
 
         postRepository.save(post);
         return post.getText();
+    }
+
+    public PostResponseDTO getPost(Long postId) {
+        Optional<Post> post = postRepository.findById(postId);
+        if(post.isPresent()){
+            Post p = post.get();
+            return new PostResponseDTO(p.getId(), p.getText(), p.getAuthorId());
+        } else {
+            throw new IllegalArgumentException("Post not found");
+        }
     }
 }
