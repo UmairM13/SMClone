@@ -1,6 +1,7 @@
 package com.example.springfsd.app.services;
 
 import com.example.springfsd.app.dto.PostRequestDTO;
+import com.example.springfsd.app.exception.PostNotFoundException;
 import com.example.springfsd.app.models.Post;
 import com.example.springfsd.app.repository.PostRepository;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final UserService userService;
 
     public Long createPost(PostRequestDTO postRequestDTO, Long authorId) {
         Post post = new Post();
@@ -35,5 +37,22 @@ public class PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    @Transactional
+    public String updatePost(Long postId, String token, PostRequestDTO postRequestDTO) throws PostNotFoundException{
+        Long userId = userService.getUserIdByToken(token);
+
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!post.getAuthorId().equals(userId)) {
+            throw new RuntimeException("You are not allowed to update this post");
+        }
+
+        post.setText(postRequestDTO.text());
+        post.setDatePublished(LocalDateTime.now());
+
+        postRepository.save(post);
+        return post.getText();
     }
 }

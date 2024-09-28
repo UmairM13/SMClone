@@ -72,6 +72,12 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found")); // Handle the case where the user is not found
     }
 
+    public Long getUserIdByToken(String token){
+        return userRepository.findBySessionToken(token)
+                .map(User::getId)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+    }
+
     // DTO records inside UserService
     public record UserRequestDTO(String firstName, String lastName, String username, String password) {}
     public record UserResponseDTO(Long id, String username, String token) {}

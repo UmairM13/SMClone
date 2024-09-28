@@ -63,4 +63,13 @@ public class PostController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
     }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<String> updatePost(@PathVariable Long postId,
+                                             @RequestHeader("Authorization") String authorizationHeader,
+                                             @RequestBody PostRequestDTO postRequestDTO) {
+        String token = authorizationHeader.substring(7);
+        String updatedText = postService.updatePost(postId, token, postRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedText);
+    }
 }
