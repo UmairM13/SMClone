@@ -10,7 +10,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +82,20 @@ public class UserService {
         return userRepository.findBySessionToken(token)
                 .map(User::getId)
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
+    }
+
+    public List<UserResponseDTO> searchUsers(String q) {
+        List<User> users;
+
+        if (q == null || q.trim().isEmpty()) {
+            users = userRepository.findAll();
+        } else {
+            users = userRepository.searchUsersByQuery(q.trim());
+        }
+
+        return users.stream()
+                .map(user -> new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername()))
+                .collect(Collectors.toList());
     }
 
 }
