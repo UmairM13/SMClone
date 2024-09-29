@@ -18,3 +18,47 @@ export const signup = async (userData: {
     throw new Error("Error signing up");
   }
 };
+
+export const login = async (userData: {
+  username: string;
+  password: string;
+}) => {
+  const response = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error logging in");
+  }
+  const data = await response.json();
+  localStorage.setItem("id", data.id);
+  localStorage.setItem("token", data.token);
+};
+
+export const logout = async (token: string) => {
+  try {
+    const response = await fetch(`${API_URL}/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // Include this to specify the content type
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error logging out");
+    }
+
+    // Read the response as text
+    const data = await response.text();
+
+    console.log(data); // This will output "Logout successful"
+  } catch (error) {
+    console.error("An error occurred while logging out:", error);
+    throw new Error("Error logging out");
+  }
+};
