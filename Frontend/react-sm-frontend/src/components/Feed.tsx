@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchFeed } from "../services/PostApi";
 import { Post } from "../interfaces/Post";
+import PostItem from "./PostItem";
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -41,16 +42,7 @@ const Feed: React.FC = () => {
       ) : (
         <div className="list-group">
           {posts.map((post) => (
-            <div key={post.id} className="list-group-item">
-              <h5 className="mb-1">{post.author.username}</h5>
-              <p className="mb-1">{post.text}</p>
-              <small className="text-muted">
-                Likes: {post.likes.length} | Published on{" "}
-                {post.epochSecond
-                  ? new Date(post.epochSecond * 1000).toLocaleString()
-                  : " Unknown"}
-              </small>
-            </div>
+            <PostItem key={post.id} post={post} />
           ))}
         </div>
       )}
