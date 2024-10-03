@@ -15,36 +15,51 @@ const Dashboard: React.FC = () => {
   const userId = localStorage.getItem("id");
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        if (!userId) {
-          throw new Error("User ID not found");
-        }
-        const userData = await getUser(userId);
+  // Function to fetch user data
+  const fetchUserData = async () => {
+    if (!userId) {
+      console.error("User ID not found");
+      setLoading(false);
+      return; // Exit if userId is not found
+    }
 
-        setFollowers(userData.followers);
-        setFollowing(userData.following);
-        setPosts(userData.posts);
-        setLoading(false);
-      } catch (error: any) {
-        console.error(error);
-      }
-    };
-    fetchUserData();
+    try {
+      const userData = await getUser(userId);
+
+      // Fetch followers, following, and posts from userData
+      setFollowers(userData.followers);
+      setFollowing(userData.following);
+      setPosts(userData.posts);
+    } catch (error: any) {
+      console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false); // Ensure loading state is set to false in all cases
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData(); // Call the fetchUserData function on mount
   }, [userId]);
 
   const handleAddPost = async () => {
     if (newPost.trim() === "") {
-      return;
+      return; // Don't allow empty posts
     }
 
     try {
-      const postData = await addPost(userId!, token!, newPost);
-      setPosts([postData, ...posts]);
-      setNewPost("");
+      if (!userId || !token) {
+        console.error("User ID or token not found");
+        return; // Exit if userId or token is not available
+      }
+
+      const postData = await addPost(userId, token, newPost);
+      console.log("New post added:", postData);
+      setNewPost(""); // Clear the input field
+
+      // Refetch the user data to get the updated posts
+      await fetchUserData(); // Call fetchUserData after adding the post
     } catch (error: any) {
-      console.error(error);
+      console.error("Failed to add post:", error);
     }
   };
 
@@ -82,9 +97,10 @@ const Dashboard: React.FC = () => {
           <div className="user-posts">
             <h3>Your Posts</h3>
             {posts.length > 0 ? (
-              posts.map((post, index) => (
-                <PostItem key={index} post={post} /> // Use PostItem here
-              ))
+              // Reverse the posts array to display new posts at the top
+              [...posts]
+                .reverse()
+                .map((post) => <PostItem key={post.id} post={post} />) // Use post.id as key for better performance
             ) : (
               <p>You haven't created any posts yet.</p>
             )}
