@@ -4,6 +4,7 @@ import Feed from "./components/Feed";
 import Navbar from "./components/Navbar";
 import Search from "./components/Search";
 import SignUp from "./components/SignUp";
+import Login from "./components/Login";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" Component={Feed} />
         <Route path="/search" element={<Search />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );
