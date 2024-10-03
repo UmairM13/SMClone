@@ -3,22 +3,30 @@ package com.example.springfsd.app.services;
 import com.example.springfsd.app.dto.PostRequestDTO;
 import com.example.springfsd.app.dto.PostResponseDTO;
 import com.example.springfsd.app.exception.PostNotFoundException;
+import com.example.springfsd.app.models.Like;
 import com.example.springfsd.app.models.Post;
+import com.example.springfsd.app.models.User;
+import com.example.springfsd.app.repository.LikeRepository;
 import com.example.springfsd.app.repository.PostRepository;
+import com.example.springfsd.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
 
     public Long createPost(PostRequestDTO postRequestDTO, Long authorId) {
         Post post = new Post();
@@ -60,10 +68,46 @@ public class PostService {
     }
 
     public PostResponseDTO getPost(Long postId) {
-        Optional<Post> post = postRepository.findById(postId);
-        if(post.isPresent()){
-            Post p = post.get();
-            return new PostResponseDTO(p.getId(), p.getText(), p.getAuthorId());
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        if (optionalPost.isPresent()) {
+            Post p = optionalPost.get();
+
+            // Fetch the author details
+            User author = userRepository.findById(p.getAuthorId())
+                    .orElseThrow(() -> new IllegalArgumentException("Author not found"));
+
+            // Collect likes for the post
+            List<Like> likes = likeRepository.findAllByPostId(p.getId());
+
+            // Map likes to LikeDTO
+            List<PostResponseDTO.LikeDTO> likeDTOs = likes.stream()
+                    .map(like -> {
+                        // Fetch user details for the like
+                        User likeUser = userRepository.findById(like.getUserId())
+                                .orElseThrow(() -> new IllegalStateException("Liker not found"));
+                        return new PostResponseDTO.LikeDTO(
+                                likeUser.getId(),
+                                likeUser.getFirstName(),
+                                likeUser.getLastName(),
+                                likeUser.getUsername());
+                    })
+                    .collect(Collectors.toList());
+
+            // Create AuthorDTO
+            PostResponseDTO.AuthorDTO authorDTO = new PostResponseDTO.AuthorDTO(
+                    author.getId(),
+                    author.getFirstName(),
+                    author.getLastName(),
+                    author.getUsername());
+
+            // Return the populated PostResponseDTO
+            return new PostResponseDTO(
+                    p.getId(),
+                    p.getDatePublished().toEpochSecond(ZoneOffset.UTC),
+                    p.getText(),
+                    authorDTO,
+                    likeDTOs
+            );
         } else {
             throw new IllegalArgumentException("Post not found");
         }

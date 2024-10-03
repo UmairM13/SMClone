@@ -1,15 +1,21 @@
 package com.example.springfsd.app.services;
 
-import com.example.springfsd.app.dto.UserRequestDTO;
+import com.example.springfsd.app.dto.*;
 import com.example.springfsd.app.exception.UserAlreadyExistsException;
+import com.example.springfsd.app.models.Follow;
+import com.example.springfsd.app.models.Like;
+import com.example.springfsd.app.models.Post;
 import com.example.springfsd.app.models.User;
+import com.example.springfsd.app.repository.FollowRepository;
+import com.example.springfsd.app.repository.LikeRepository;
+import com.example.springfsd.app.repository.PostRepository;
 import com.example.springfsd.app.repository.UserRepository;
-import com.example.springfsd.app.dto.UserResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,7 +25,10 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     public Long createUser(UserRequestDTO userRequestDTO) throws UserAlreadyExistsException {
         if (userRepository.existsByUsername(userRequestDTO.username())) {
@@ -38,17 +47,68 @@ public class UserService {
         return savedUser.getId();
     }
 
-    public UserResponseDTO getUserById(Long userId) {
+    public UserResDTO getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
-        return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername());
+
+        List<Follow> followersEntities = followRepository.findAllByUserId(userId);
+        List<UserDTO> followers = followersEntities.stream()
+                .map(follower -> {
+                    User followUser = userRepository.findById(follower.getId())
+                            .orElseThrow(() -> new IllegalStateException("Follower not found"));
+
+                    return new UserDTO(followUser.getId(), followUser.getFirstName(), followUser.getLastName(), followUser.getUsername());
+                })
+                .collect(Collectors.toList());
+
+        List<Follow> followingEntities = followRepository.findAllByUserId(userId);
+        List<UserDTO> following = followingEntities.stream()
+                .map(follower -> {
+                    User followingUser = userRepository.findById(follower.getId())
+                            .orElseThrow(() -> new IllegalStateException("Follower not found"));
+
+                    return new UserDTO(followingUser.getId(), followingUser.getFirstName(), followingUser.getLastName(), followingUser.getUsername());
+                })
+                .collect(Collectors.toList());
+
+        // Fetch posts via PostRepository
+        List<Post> userPosts = postRepository.findAllByAuthorId(userId);
+        List<PostResponseDTO> posts = userPosts.stream()
+                .map(post -> {
+                    // Fetch the author details
+                    User author = userRepository.findById(post.getAuthorId())
+                            .orElseThrow(() -> new IllegalStateException("Author not found"));
+
+                    // Collect likes for the post
+                    List<Like> likes = likeRepository.findAllByPostId(post.getId());
+
+                    return new PostResponseDTO(
+                            post.getId(),
+                            post.getDatePublished().toEpochSecond(ZoneOffset.UTC),
+                            post.getText(),
+                            new PostResponseDTO.AuthorDTO(author.getId(),
+                                    author.getFirstName(),
+                                    author.getLastName(),
+                                    author.getUsername()),
+                            likes.stream()
+                                    .map(like -> {
+                                        // Fetch user details for the like
+                                        User likeUser = userRepository.findById(like.getUserId())
+                                                .orElseThrow(() -> new IllegalStateException("Liker not found"));
+                                        return new PostResponseDTO.LikeDTO(likeUser.getId(),
+                                                likeUser.getFirstName(),
+                                                likeUser.getLastName(),
+                                                likeUser.getUsername());
+                                    })
+                                    .collect(Collectors.toList())
+                    );
+                })
+                .collect(Collectors.toList());
+
+
+        return new UserResDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), followers, following, posts );
     }
 
-//    public String getToken(Long userId) {
-//        return userRepository.findById(userId)
-//                .map(User::getSessionToken)
-//                .orElse(null);
-//    }
 
     @Transactional
     public void setToken(Long userId, String token) {

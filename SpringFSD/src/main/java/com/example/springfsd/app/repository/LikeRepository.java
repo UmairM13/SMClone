@@ -12,4 +12,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     @Query("SELECT l.userId FROM Like l WHERE l.postId = :postId")
     List<Long> findUsersByPostId(Long postId);
+
+    List<Like> findAllByPostId(Long postId);
 }

@@ -2,6 +2,7 @@ package com.example.springfsd.app.controller;
 
 import com.example.springfsd.app.config.JwtUtil;
 import com.example.springfsd.app.dto.UserRequestDTO;
+import com.example.springfsd.app.dto.UserResDTO;
 import com.example.springfsd.app.dto.UserResponseDTO;
 import com.example.springfsd.app.models.User;
 import com.example.springfsd.app.services.UserService;
@@ -66,9 +67,9 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long userId) {
+    public ResponseEntity<UserResDTO> getUser(@PathVariable Long userId) {
         try{
-            UserResponseDTO userResponseDTO = userService.getUserById(userId);
+            UserResDTO userResponseDTO = userService.getUserById(userId);
             return ResponseEntity.ok(userResponseDTO);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
