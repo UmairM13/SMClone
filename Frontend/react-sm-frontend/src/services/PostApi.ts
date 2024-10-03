@@ -21,3 +21,25 @@ export const searchUsers = async (q: string): Promise<any[]> => {
     throw new Error("Error searching users");
   }
 };
+
+export const addPost = async (
+  userId: string,
+  token: string,
+  text: string
+): Promise<Post> => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/posts`,
+      { userId, text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error adding post");
+  }
+};

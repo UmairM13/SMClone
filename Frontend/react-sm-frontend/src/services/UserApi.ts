@@ -62,3 +62,12 @@ export const logout = async (token: string) => {
     throw new Error("Error logging out");
   }
 };
+
+export const getUser = async (id: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/users/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Error fetching user");
+  }
+};
