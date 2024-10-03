@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -28,5 +29,9 @@ public class Post {
 
     @Column(name = "author_id", nullable = false)
     private Long authorId;
+
+    // Define the relationship with Like
+    @OneToMany(mappedBy = "postId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Like> likes; // Add this line to fetch likes for a post
 
 }
