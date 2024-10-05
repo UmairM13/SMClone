@@ -7,11 +7,14 @@ const Feed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const id = localStorage.getItem("id");
+  const currentUserId = id ? parseInt(id) : null;
 
   useEffect(() => {
     const loadFeed = async () => {
       try {
         const feed = await fetchFeed();
+        console.log("Fetched Feed:", feed);
         const sortedFeed = feed.sort(
           (a: Post, b: Post) => b.epochSecond - a.epochSecond
         );
@@ -26,6 +29,22 @@ const Feed: React.FC = () => {
     loadFeed();
   }, []);
 
+  const handleLike = (postId: number) => {
+    console.log("Like post with ID:", postId);
+  };
+
+  const handleDislike = (postId: number) => {
+    console.log("Dislike post with ID:", postId);
+  };
+
+  const handleEdit = (postId: number) => {
+    console.log("Edit post with ID:", postId);
+  };
+
+  const handleDelete = (postId: number) => {
+    console.log("Delete post with ID:", postId);
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -33,6 +52,8 @@ const Feed: React.FC = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  console.log("Current User ID:", currentUserId); // Log current user ID
 
   return (
     <div className="mt-5">
@@ -42,7 +63,15 @@ const Feed: React.FC = () => {
       ) : (
         <div className="list-group">
           {posts.map((post) => (
-            <PostItem key={post.id} post={post} />
+            <PostItem
+              key={post.id}
+              post={post}
+              currentUserId={currentUserId}
+              onLike={handleLike}
+              onDislike={handleDislike}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       )}

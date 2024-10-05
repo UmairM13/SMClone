@@ -15,6 +15,8 @@ const Dashboard: React.FC = () => {
   const userId = localStorage.getItem("id");
   const token = localStorage.getItem("token");
 
+  const currentUserId = userId ? parseInt(userId) : null;
+
   // Function to fetch user data
   const fetchUserData = async () => {
     if (!userId) {
@@ -63,6 +65,22 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleLike = (postId: number) => {
+    console.log("Like post with ID:", postId);
+  };
+
+  const handleDislike = (postId: number) => {
+    console.log("Dislike post with ID:", postId);
+  };
+
+  const handleEdit = (postId: number) => {
+    console.log("Edit post with ID:", postId);
+  };
+
+  const handleDelete = (postId: number) => {
+    console.log("Delete post with ID:", postId);
+  };
+
   return (
     <div className="dashboard">
       <h2 className="dashboard-title">User Dashboard</h2>
@@ -100,7 +118,17 @@ const Dashboard: React.FC = () => {
               // Reverse the posts array to display new posts at the top
               [...posts]
                 .reverse()
-                .map((post) => <PostItem key={post.id} post={post} />) // Use post.id as key for better performance
+                .map((post) => (
+                  <PostItem
+                    key={post.id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onLike={handleLike}
+                    onDislike={handleDislike}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                )) // Use post.id as key for better performance
             ) : (
               <p>You haven't created any posts yet.</p>
             )}
