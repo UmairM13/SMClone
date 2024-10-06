@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { searchUsers } from "../services/PostApi";
+import { Link } from "react-router-dom";
+import "../styles/Search.css";
 
 const Search: React.FC = () => {
   const [query, setQuery] = useState<string>("");
@@ -73,7 +75,9 @@ const Search: React.FC = () => {
         <ul className="list-group mt-3">
           {results.map((user) => (
             <li key={user.id} className="list-group-item">
-              {user.username} - {user.firstName} {user.lastName}
+              <Link to={`/profile/${user.id}`} className="user-link">
+                {user.username} - {user.firstName} {user.lastName}
+              </Link>
             </li>
           ))}
         </ul>

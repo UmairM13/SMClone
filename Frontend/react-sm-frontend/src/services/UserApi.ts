@@ -71,3 +71,33 @@ export const getUser = async (id: string) => {
     throw new Error("Error fetching user");
   }
 };
+
+export const followUser = async (userId: string, token: string | null) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/users/${userId}/follow`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error following user");
+  }
+};
+
+export const unfollowUser = async (userId: string, token: string | null) => {
+  try {
+    const response = await axios.delete(`${API_URL}/users/${userId}/follow`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error unfollowing user");
+  }
+};

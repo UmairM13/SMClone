@@ -13,6 +13,7 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import { useEffect, useRef } from "react";
+import Profile from "./components/Profile";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route
           path="/dashboard"
           element={

@@ -1,14 +1,16 @@
+// Updated PostItem component
 import React, { useState } from "react";
-import { Post } from "../interfaces/Post"; // Assuming you have defined the Post interface
-import "../styles/PostItem.css"; // Ensure your CSS styles are defined here
+import { Post } from "../interfaces/Post";
+import { Link } from "react-router-dom"; // Import Link for navigation
+import "../styles/PostItem.css";
 
 interface PostItemProps {
   post: Post;
   currentUserId: number | null;
   onLike: (postId: number) => void;
   onDislike: (postId: number) => void;
-  onEdit: (postId: number, newText: string) => void; // Function to handle edit
-  onDelete: (postId: number) => void; // Function to handle delete
+  onEdit: (postId: number, newText: string) => void;
+  onDelete: (postId: number) => void;
 }
 
 const PostItem: React.FC<PostItemProps> = ({
@@ -19,29 +21,25 @@ const PostItem: React.FC<PostItemProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const [isEditing, setIsEditing] = useState(false); // State for editing mode
-  const [newText, setNewText] = useState(post.text || ""); // State for new text
-  const [showActions, setShowActions] = useState(false); // State to show edit/delete buttons
+  const [isEditing, setIsEditing] = useState(false);
+  const [newText, setNewText] = useState(post.text || "");
+  const [showActions, setShowActions] = useState(false);
 
-  // Function to handle saving the edited post
   const handleSave = () => {
     if (newText.trim()) {
-      onEdit(post.id, newText); // Call the edit function
-      setIsEditing(false); // Exit editing mode
+      onEdit(post.id, newText);
+      setIsEditing(false);
     }
   };
 
-  // Function to handle deleting the post
   const handleDelete = () => {
-    onDelete(post.id); // Call the delete function
+    onDelete(post.id);
   };
 
-  // If post is not available
   if (!post) {
     return <div>No content available</div>;
   }
 
-  // Get author name and published date
   const authorName = post.author?.username ?? `User ID: ${post.authorId}`;
   const likesCount = post.likes?.length || 0;
   const publishedDate = post.epochSecond
@@ -51,7 +49,16 @@ const PostItem: React.FC<PostItemProps> = ({
   return (
     <div className="list-group-item post-item" style={{ position: "relative" }}>
       <div className="post-header">
-        <div className="author-name">{authorName}</div>
+        <Link
+          to={
+            currentUserId === post.author?.userId
+              ? "/dashboard"
+              : `/profile/${post.author?.userId}`
+          }
+          className="author-name"
+        >
+          {authorName}
+        </Link>
         {currentUserId === post.author?.userId && (
           <div
             className="post-actions"
@@ -83,7 +90,7 @@ const PostItem: React.FC<PostItemProps> = ({
       {isEditing ? (
         <textarea
           value={newText}
-          onChange={(e) => setNewText(e.target.value)} // Update new text
+          onChange={(e) => setNewText(e.target.value)}
           rows={3}
           className="post-textarea"
         />
@@ -104,7 +111,7 @@ const PostItem: React.FC<PostItemProps> = ({
             </button>
             <button
               onClick={() => {
-                setIsEditing(false); // Exit editing mode
+                setIsEditing(false);
               }}
               className="cancel-button"
             >
