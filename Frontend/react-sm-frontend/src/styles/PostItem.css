@@ -1,0 +1,110 @@
+.post-item {
+  border: 1px solid #ddd; /* Light border for posts */
+  border-radius: 8px; /* Rounded corners */
+  padding: 16px; /* Spacing inside the post */
+  margin: 10px 0; /* Spacing between posts */
+  background-color: #fff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between; /* Space between author name and options */
+  align-items: center; /* Center align items */
+}
+
+.options-button {
+  background-color: #007bff; /* Bootstrap primary color */
+  color: white; /* Text color */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 8px 12px; /* Spacing around the button */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Transition effect */
+}
+
+.options-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.action-buttons {
+  display: flex; /* Flexbox for vertical stacking */
+  flex-direction: column; /* Stack buttons vertically */
+  position: absolute; /* Absolute positioning */
+  right: 0; /* Align to the right */
+  top: 40px; /* Space below the options button */
+  background-color: #fff; /* White background for dropdown */
+  border: 1px solid #ddd; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  z-index: 1; /* Ensure it's on top */
+}
+
+.edit-button,
+.delete-button {
+  background-color: #f8f9fa; /* Light background */
+  color: #333; /* Dark text */
+  border: none; /* No border */
+  padding: 8px 10px; /* Spacing around buttons */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Transition effect */
+}
+
+.edit-button:hover {
+  background-color: #e2e6ea; /* Darker background on hover */
+}
+
+.delete-button:hover {
+  background-color: #f5c6cb; /* Light red background on hover */
+}
+
+.post-textarea {
+  width: 100%; /* Full width */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 8px; /* Spacing */
+}
+
+.save-button,
+.cancel-button {
+  margin-top: 8px; /* Spacing above buttons */
+  background-color: #28a745; /* Green background */
+  color: white; /* Text color */
+  border: none; /* No border */
+  padding: 8px 12px; /* Spacing */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Transition effect */
+}
+
+.save-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.cancel-button {
+  background-color: #dc3545; /* Red background */
+}
+
+.cancel-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+.like-button,
+.dislike-button {
+  margin-right: 8px; /* Spacing between like/dislike buttons */
+  background-color: #007bff; /* Bootstrap primary color */
+  color: white; /* Text color */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  padding: 8px 10px; /* Spacing around buttons */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Transition effect */
+}
+
+.like-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.dislike-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}

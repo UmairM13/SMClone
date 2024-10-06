@@ -5,6 +5,7 @@ export interface Post {
   id: number;
   text: string;
   epochSecond: number;
-  author: Author;
+  author?: Author;
+  authorId?: number;
   likes: Like[];
 }

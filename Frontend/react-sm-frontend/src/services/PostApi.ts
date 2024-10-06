@@ -21,3 +21,100 @@ export const searchUsers = async (q: string): Promise<any[]> => {
     throw new Error("Error searching users");
   }
 };
+
+export const addPost = async (
+  userId: string,
+  token: string,
+  text: string
+): Promise<Post> => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/posts`,
+      { userId, text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error adding post");
+  }
+};
+
+export const likePost = async (
+  postId: number,
+  token: string | null
+): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/posts/${postId}/like`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error liking post");
+  }
+};
+
+export const unlikePost = async (
+  postId: number,
+  token: string | null
+): Promise<void> => {
+  try {
+    const response = await axios.delete(`${API_URL}/posts/${postId}/like`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error unliking post");
+  }
+};
+
+export const deletePost = async (
+  postId: number,
+  token: string | null
+): Promise<void> => {
+  try {
+    const response = await axios.delete(`${API_URL}/posts/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error deleting post");
+  }
+};
+
+export const updatePost = async (
+  postId: string,
+  userId: string,
+  token: string,
+  text: string
+): Promise<Post> => {
+  try {
+    const response = await axios.patch(
+      `${API_URL}/posts/${postId}`,
+      { userId, text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error adding post");
+  }
+};
