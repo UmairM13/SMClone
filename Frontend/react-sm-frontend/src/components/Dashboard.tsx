@@ -4,7 +4,7 @@ import "../styles/dashboard.css";
 import { addPost } from "../services/PostApi";
 import { Post } from "../interfaces/Post";
 import PostItem from "../components/PostItem";
-import { likePost, unlikePost } from "../services/PostApi";
+import { likePost, unlikePost, deletePost } from "../services/PostApi";
 
 const Dashboard: React.FC = () => {
   const [followers, setFollowers] = useState<string[]>([]);
@@ -93,8 +93,15 @@ const Dashboard: React.FC = () => {
     console.log("Edit post with ID:", postId);
   };
 
-  const handleDelete = (postId: number) => {
-    console.log("Delete post with ID:", postId);
+  const handleDelete = async (postId: number) => {
+    try {
+      console.log("Delete post with ID:", postId);
+      await deletePost(postId, token);
+      console.log("Post deleted successfully");
+      await fetchUserData();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
   };
 
   return (

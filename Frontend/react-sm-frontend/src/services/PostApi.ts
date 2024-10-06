@@ -76,6 +76,22 @@ export const unlikePost = async (
     });
     console.log(response.data);
   } catch (error) {
-    throw new Error("Error liking post");
+    throw new Error("Error unliking post");
+  }
+};
+
+export const deletePost = async (
+  postId: number,
+  token: string | null
+): Promise<void> => {
+  try {
+    const response = await axios.delete(`${API_URL}/posts/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error deleting post");
   }
 };

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchFeed } from "../services/PostApi";
 import { Post } from "../interfaces/Post";
 import PostItem from "./PostItem";
-import { likePost } from "../services/PostApi";
-import { unlikePost } from "../services/PostApi";
+import { likePost, unlikePost, deletePost } from "../services/PostApi";
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -61,8 +60,15 @@ const Feed: React.FC = () => {
     console.log("Edit post with ID:", postId);
   };
 
-  const handleDelete = (postId: number) => {
-    console.log("Delete post with ID:", postId);
+  const handleDelete = async (postId: number) => {
+    try {
+      console.log("Delete post with ID:", postId);
+      await deletePost(postId, token);
+      console.log("Post deleted successfully");
+      await loadFeed();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
   };
 
   if (loading) {
