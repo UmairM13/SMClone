@@ -51,22 +51,22 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
 
+        // Fetch followers of the user (users who follow the specified user)
         List<Follow> followersEntities = followRepository.findAllByUserId(userId);
         List<UserDTO> followers = followersEntities.stream()
                 .map(follower -> {
-                    User followUser = userRepository.findById(follower.getId())
+                    User followUser = userRepository.findById(follower.getFollowerId())
                             .orElseThrow(() -> new IllegalStateException("Follower not found"));
-
                     return new UserDTO(followUser.getId(), followUser.getFirstName(), followUser.getLastName(), followUser.getUsername());
                 })
                 .collect(Collectors.toList());
 
-        List<Follow> followingEntities = followRepository.findAllByUserId(userId);
+        // Fetch users that the specified user is following
+        List<Follow> followingEntities = followRepository.findAllByFollowerId(userId);
         List<UserDTO> following = followingEntities.stream()
-                .map(follower -> {
-                    User followingUser = userRepository.findById(follower.getId())
-                            .orElseThrow(() -> new IllegalStateException("Follower not found"));
-
+                .map(followedUser -> {
+                    User followingUser = userRepository.findById(followedUser.getUserId())
+                            .orElseThrow(() -> new IllegalStateException("Following not found"));
                     return new UserDTO(followingUser.getId(), followingUser.getFirstName(), followingUser.getLastName(), followingUser.getUsername());
                 })
                 .collect(Collectors.toList());
@@ -105,9 +105,10 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
 
-
-        return new UserResDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), followers, following, posts );
+        return new UserResDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), followers, following, posts);
     }
+
+
 
 
     @Transactional
