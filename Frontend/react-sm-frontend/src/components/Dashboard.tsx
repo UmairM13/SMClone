@@ -3,7 +3,8 @@ import { getUser } from "../services/UserApi";
 import "../styles/dashboard.css";
 import { addPost } from "../services/PostApi";
 import { Post } from "../interfaces/Post";
-import PostItem from "../components/PostItem"; // Import the PostItem component
+import PostItem from "../components/PostItem";
+import { likePost, unlikePost } from "../services/PostApi";
 
 const Dashboard: React.FC = () => {
   const [followers, setFollowers] = useState<string[]>([]);
@@ -65,12 +66,27 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleLike = (postId: number) => {
-    console.log("Like post with ID:", postId);
+  const handleLike = async (postId: number) => {
+    try {
+      console.log("Like post with ID:", postId);
+      console.log("Token:", token);
+      await likePost(postId, token);
+      console.log("Post liked successfully");
+      await fetchUserData();
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
   };
 
-  const handleDislike = (postId: number) => {
-    console.log("Dislike post with ID:", postId);
+  const handleDislike = async (postId: number) => {
+    try {
+      console.log("Dislike post with ID:", postId);
+      await unlikePost(postId, token);
+      console.log("Post unliked successfully");
+      await fetchUserData();
+    } catch (error) {
+      console.error("Error disliking post:", error);
+    }
   };
 
   const handleEdit = (postId: number) => {

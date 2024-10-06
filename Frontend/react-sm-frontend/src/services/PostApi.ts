@@ -43,3 +43,39 @@ export const addPost = async (
     throw new Error("Error adding post");
   }
 };
+
+export const likePost = async (
+  postId: number,
+  token: string | null
+): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/posts/${postId}/like`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error liking post");
+  }
+};
+
+export const unlikePost = async (
+  postId: number,
+  token: string | null
+): Promise<void> => {
+  try {
+    const response = await axios.delete(`${API_URL}/posts/${postId}/like`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+  } catch (error) {
+    throw new Error("Error liking post");
+  }
+};

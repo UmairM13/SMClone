@@ -2,39 +2,59 @@ import React, { useState, useEffect } from "react";
 import { fetchFeed } from "../services/PostApi";
 import { Post } from "../interfaces/Post";
 import PostItem from "./PostItem";
+import { likePost } from "../services/PostApi";
+import { unlikePost } from "../services/PostApi";
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const id = localStorage.getItem("id");
+  const token = localStorage.getItem("token");
   const currentUserId = id ? parseInt(id) : null;
 
   useEffect(() => {
-    const loadFeed = async () => {
-      try {
-        const feed = await fetchFeed();
-        console.log("Fetched Feed:", feed);
-        const sortedFeed = feed.sort(
-          (a: Post, b: Post) => b.epochSecond - a.epochSecond
-        );
-        setPosts(sortedFeed);
-        setLoading(false);
-      } catch (error: any) {
-        setError(error.message);
-        setLoading(false);
-      }
-    };
+    loadFeed(); // Call loadFeed on component mount
 
-    loadFeed();
-  }, []);
+    // Optional: If you want to refresh the feed when the token changes
+  }, [token]);
 
-  const handleLike = (postId: number) => {
-    console.log("Like post with ID:", postId);
+  const loadFeed = async () => {
+    try {
+      const feed = await fetchFeed();
+      console.log("Fetched Feed:", feed);
+      const sortedFeed = feed.sort(
+        (a: Post, b: Post) => b.epochSecond - a.epochSecond
+      );
+      setPosts(sortedFeed);
+      setLoading(false);
+    } catch (error: any) {
+      setError(error.message);
+      setLoading(false);
+    }
   };
 
-  const handleDislike = (postId: number) => {
-    console.log("Dislike post with ID:", postId);
+  const handleLike = async (postId: number) => {
+    try {
+      console.log("Like post with ID:", postId);
+      console.log("Token:", token);
+      await likePost(postId, token);
+      console.log("Post liked successfully");
+      await loadFeed(); // Refresh the feed after liking
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  };
+
+  const handleDislike = async (postId: number) => {
+    try {
+      console.log("Dislike post with ID:", postId);
+      await unlikePost(postId, token);
+      console.log("Post unliked successfully");
+      await loadFeed(); // Refresh the feed after unliking
+    } catch (error) {
+      console.error("Error disliking post:", error);
+    }
   };
 
   const handleEdit = (postId: number) => {
