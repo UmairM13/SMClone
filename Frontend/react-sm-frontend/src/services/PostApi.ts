@@ -95,3 +95,26 @@ export const deletePost = async (
     throw new Error("Error deleting post");
   }
 };
+
+export const updatePost = async (
+  postId: string,
+  userId: string,
+  token: string,
+  text: string
+): Promise<Post> => {
+  try {
+    const response = await axios.patch(
+      `${API_URL}/posts/${postId}`,
+      { userId, text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error adding post");
+  }
+};

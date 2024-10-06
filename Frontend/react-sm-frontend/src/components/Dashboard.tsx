@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getUser } from "../services/UserApi";
 import "../styles/dashboard.css";
-import { addPost } from "../services/PostApi";
+import {
+  addPost,
+  updatePost,
+  likePost,
+  unlikePost,
+  deletePost,
+} from "../services/PostApi";
 import { Post } from "../interfaces/Post";
 import PostItem from "../components/PostItem";
-import { likePost, unlikePost, deletePost } from "../services/PostApi";
 
 const Dashboard: React.FC = () => {
   const [followers, setFollowers] = useState<string[]>([]);
@@ -12,10 +17,10 @@ const Dashboard: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [newPost, setNewPost] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [editingPostId] = useState<number | null>(null);
 
   const userId = localStorage.getItem("id");
   const token = localStorage.getItem("token");
-
   const currentUserId = userId ? parseInt(userId) : null;
 
   // Function to fetch user data
@@ -28,7 +33,6 @@ const Dashboard: React.FC = () => {
 
     try {
       const userData = await getUser(userId);
-
       // Fetch followers, following, and posts from userData
       setFollowers(userData.followers);
       setFollowing(userData.following);
@@ -59,8 +63,7 @@ const Dashboard: React.FC = () => {
       console.log("New post added:", postData);
       setNewPost(""); // Clear the input field
 
-      // Refetch the user data to get the updated posts
-      await fetchUserData(); // Call fetchUserData after adding the post
+      await fetchUserData(); // Refresh the post list
     } catch (error: any) {
       console.error("Failed to add post:", error);
     }
@@ -68,11 +71,8 @@ const Dashboard: React.FC = () => {
 
   const handleLike = async (postId: number) => {
     try {
-      console.log("Like post with ID:", postId);
-      console.log("Token:", token);
       await likePost(postId, token);
-      console.log("Post liked successfully");
-      await fetchUserData();
+      await fetchUserData(); // Refresh the post list
     } catch (error) {
       console.error("Error liking post:", error);
     }
@@ -80,29 +80,38 @@ const Dashboard: React.FC = () => {
 
   const handleDislike = async (postId: number) => {
     try {
-      console.log("Dislike post with ID:", postId);
       await unlikePost(postId, token);
-      console.log("Post unliked successfully");
-      await fetchUserData();
+      await fetchUserData(); // Refresh the post list
     } catch (error) {
       console.error("Error disliking post:", error);
     }
   };
 
-  const handleEdit = (postId: number) => {
-    console.log("Edit post with ID:", postId);
+  const handleUpdatePost = async (postId: number, text: string) => {
+    try {
+      await updatePost(postId.toString(), userId!, token!, text);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post.id === postId ? { ...post, text } : post))
+      );
+      await fetchUserData();
+    } catch (error) {
+      console.error("Error updating post:", error);
+    }
   };
 
   const handleDelete = async (postId: number) => {
     try {
-      console.log("Delete post with ID:", postId);
       await deletePost(postId, token);
-      console.log("Post deleted successfully");
       await fetchUserData();
     } catch (error) {
       console.error("Error deleting post:", error);
     }
   };
+
+  // Sort posts by published date (newer first)
+  const sortedPosts = [...posts].sort((a, b) => {
+    return (b.epochSecond || 0) - (a.epochSecond || 0);
+  });
 
   return (
     <div className="dashboard">
@@ -137,21 +146,23 @@ const Dashboard: React.FC = () => {
 
           <div className="user-posts">
             <h3>Your Posts</h3>
-            {posts.length > 0 ? (
-              // Reverse the posts array to display new posts at the top
-              [...posts]
-                .reverse()
-                .map((post) => (
-                  <PostItem
-                    key={post.id}
-                    post={post}
-                    currentUserId={currentUserId}
-                    onLike={handleLike}
-                    onDislike={handleDislike}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                )) // Use post.id as key for better performance
+            {sortedPosts.length > 0 ? (
+              sortedPosts.map((post) => (
+                <div key={post.id}>
+                  {editingPostId === post.id ? (
+                    <div></div>
+                  ) : (
+                    <PostItem
+                      post={post}
+                      currentUserId={currentUserId}
+                      onLike={handleLike}
+                      onDislike={handleDislike}
+                      onEdit={handleUpdatePost}
+                      onDelete={handleDelete}
+                    />
+                  )}
+                </div>
+              ))
             ) : (
               <p>You haven't created any posts yet.</p>
             )}

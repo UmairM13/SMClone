@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { fetchFeed } from "../services/PostApi";
+import {
+  fetchFeed,
+  likePost,
+  unlikePost,
+  deletePost,
+  updatePost,
+} from "../services/PostApi";
 import { Post } from "../interfaces/Post";
 import PostItem from "./PostItem";
-import { likePost, unlikePost, deletePost } from "../services/PostApi";
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -13,15 +18,12 @@ const Feed: React.FC = () => {
   const currentUserId = id ? parseInt(id) : null;
 
   useEffect(() => {
-    loadFeed(); // Call loadFeed on component mount
-
-    // Optional: If you want to refresh the feed when the token changes
+    loadFeed();
   }, [token]);
 
   const loadFeed = async () => {
     try {
       const feed = await fetchFeed();
-      console.log("Fetched Feed:", feed);
       const sortedFeed = feed.sort(
         (a: Post, b: Post) => b.epochSecond - a.epochSecond
       );
@@ -35,11 +37,8 @@ const Feed: React.FC = () => {
 
   const handleLike = async (postId: number) => {
     try {
-      console.log("Like post with ID:", postId);
-      console.log("Token:", token);
       await likePost(postId, token);
-      console.log("Post liked successfully");
-      await loadFeed(); // Refresh the feed after liking
+      await loadFeed();
     } catch (error) {
       console.error("Error liking post:", error);
     }
@@ -47,24 +46,28 @@ const Feed: React.FC = () => {
 
   const handleDislike = async (postId: number) => {
     try {
-      console.log("Dislike post with ID:", postId);
       await unlikePost(postId, token);
-      console.log("Post unliked successfully");
-      await loadFeed(); // Refresh the feed after unliking
+      await loadFeed();
     } catch (error) {
       console.error("Error disliking post:", error);
     }
   };
 
-  const handleEdit = (postId: number) => {
-    console.log("Edit post with ID:", postId);
+  const handleUpdatePost = async (postId: number, text: string) => {
+    try {
+      await updatePost(postId.toString(), id!, token!, text);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post.id === postId ? { ...post, text } : post))
+      );
+      await loadFeed();
+    } catch (error) {
+      console.error("Error updating post:", error);
+    }
   };
 
   const handleDelete = async (postId: number) => {
     try {
-      console.log("Delete post with ID:", postId);
       await deletePost(postId, token);
-      console.log("Post deleted successfully");
       await loadFeed();
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -78,8 +81,6 @@ const Feed: React.FC = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
-  console.log("Current User ID:", currentUserId); // Log current user ID
 
   return (
     <div className="mt-5">
@@ -95,7 +96,7 @@ const Feed: React.FC = () => {
               currentUserId={currentUserId}
               onLike={handleLike}
               onDislike={handleDislike}
-              onEdit={handleEdit}
+              onEdit={handleUpdatePost} // Pass the onEdit prop here
               onDelete={handleDelete}
             />
           ))}

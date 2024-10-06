@@ -33,7 +33,7 @@ const PostItem: React.FC<PostItemProps> = ({
 
   // Function to handle deleting the post
   const handleDelete = () => {
-    onDelete(post.id); // Call the delete function without confirmation
+    onDelete(post.id); // Call the delete function
   };
 
   // If post is not available
@@ -81,14 +81,24 @@ const PostItem: React.FC<PostItemProps> = ({
       </div>
 
       {isEditing ? (
+        <textarea
+          value={newText}
+          onChange={(e) => setNewText(e.target.value)} // Update new text
+          rows={3}
+          className="post-textarea"
+        />
+      ) : (
         <>
-          <textarea
-            value={newText}
-            onChange={(e) => setNewText(e.target.value)} // Update new text
-            rows={3}
-            className="post-textarea"
-          />
-          <div className="post-edit-actions">
+          <h5 className="mb-1">{post.text || "No text available"}</h5>
+          <small className="text-muted">
+            Likes: {likesCount} | Published on {publishedDate}
+          </small>
+        </>
+      )}
+
+      <div className="post-edit-actions">
+        {isEditing ? (
+          <>
             <button onClick={handleSave} className="save-button">
               Save
             </button>
@@ -100,24 +110,20 @@ const PostItem: React.FC<PostItemProps> = ({
             >
               Cancel
             </button>
+          </>
+        ) : (
+          <div className="post-actions">
+            <button onClick={() => onLike(post.id)} className="like-button">
+              Like
+            </button>
+            <button
+              onClick={() => onDislike(post.id)}
+              className="dislike-button"
+            >
+              Dislike
+            </button>
           </div>
-        </>
-      ) : (
-        <>
-          <h5 className="mb-1">{post.text || "No text available"}</h5>
-          <small className="text-muted">
-            Likes: {likesCount} | Published on {publishedDate}
-          </small>
-        </>
-      )}
-
-      <div className="post-actions">
-        <button onClick={() => onLike(post.id)} className="like-button">
-          Like
-        </button>
-        <button onClick={() => onDislike(post.id)} className="dislike-button">
-          Dislike
-        </button>
+        )}
       </div>
     </div>
   );
